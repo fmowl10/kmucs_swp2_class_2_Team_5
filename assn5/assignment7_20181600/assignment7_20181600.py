@@ -133,7 +133,7 @@ class Calculator(QWidget):
                 # '+2'
                 if text in number:
                     self.display.setText(self.display.text()[:-1])
-            # prevention of operator lapping            
+            # prevention of duplicate operator            
             if self.display.text()[-1] in op and text in op:
                 return
             self.display.setText(self.display.text() + text)
