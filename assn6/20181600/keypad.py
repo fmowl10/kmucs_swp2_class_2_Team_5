@@ -30,5 +30,5 @@ FUNCTION_DICT = OrderedDict({
     '-> binary' : calcFunctions.decToBin,
     'binary -> dec': calcFunctions.binToDec,
     '-> roman' : calcFunctions.decToRoman,
-    'roman -> binary' : calcFunctions.romanToDec,
+    'roman -> dec' : calcFunctions.romanToDec,
 })

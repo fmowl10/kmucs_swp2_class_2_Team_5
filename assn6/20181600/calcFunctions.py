@@ -1,6 +1,13 @@
 from collections import OrderedDict
 from math import factorial as fact
 
+class RomanError(Exception):
+    '''
+        special exception for roman converter
+    '''
+    def __init__(self, error_message):
+        super(RomanError, self).__init__(error_message)
+
 ROMAN_NUMBER = OrderedDict({
     1000:'M', 500:'D',
     100:'C', 50:'L',
@@ -37,7 +44,7 @@ def binToDec(numStr):
         r = 'Error!'
     return r
 
-def decToRoman(numStr):
+def decToRoman(numStr: str) -> str:
     '''
         This method convert given Arabic numeral to roman numeral.
         When the method returns error message
@@ -47,10 +54,10 @@ def decToRoman(numStr):
     result_roman = ''
     try:
         if isRoman(numStr):
-            raise Exception
+            raise RomanError('not an Arabic numeral')
         n = int(numStr)
         if n >= 4000:
-            raise Exception
+            raise RomanError('too big Arabic numeral')
         for unit in ROMAN_NUMBER.keys():
             div, n = divmod(n, unit)
             if div == 4:
@@ -61,11 +68,11 @@ def decToRoman(numStr):
                     result_roman += ROMAN_NUMBER[unit] + ROMAN_NUMBER[unit * 5]
                 continue
             result_roman += ROMAN_NUMBER[unit] * div
-    except:
-        result_roman = 'Error!'
+    except RomanError:
+        return 'Error!'
     return result_roman
 
-def romanToDec(numStr):
+def romanToDec(numStr: str) -> str:
     '''
         This method convert given romman numeral to Arabic numeral.
         When the method returns error message
@@ -74,43 +81,45 @@ def romanToDec(numStr):
             got wrong form
     '''
     result_dec = 0
-    result_arr = []
     try:
         if not isRoman(numStr):
-            raise Exception
+            raise RomanError('Not an Roman numeral')
         if not numStr:
-            raise Exception
+            raise TypeError
         stack = []
-        for idx in range(len(numStr)):
-            if not stack:
-                stack.insert(0, numStr[idx])
+        for _, current_idx in enumerate(numStr):
+            current_idx = REVERSED_ROMAN_NUMBER[current_idx]
+            try:
+                stack_last = stack[-1]
+            except IndexError:
+                stack.insert(0, current_idx)
                 continue
+
             if len(stack) > 1:
-                stack_last = REVERSED_ROMAN_NUMBER[stack[-1]]
-                current_idx = REVERSED_ROMAN_NUMBER[numStr[idx]]
                 if stack_last < current_idx:
-                    raise Exception
-            if REVERSED_ROMAN_NUMBER[stack[-1]] == REVERSED_ROMAN_NUMBER[numStr[idx]]:
+                    raise RomanError('Wrong form')
+            if stack_last == current_idx:
+            # the same letter can't be 4 letters
+                if stack.count(stack_last) > 3:
+                    raise RomanError('Wrong form')
                 roman_duplicatable = [k for k in ROMAN_NUMBER.keys() if str(k // 5)[0] != '1']
-                if REVERSED_ROMAN_NUMBER[numStr[idx]] not in roman_duplicatable:
-                    raise Exception
+                if current_idx not in roman_duplicatable:
+                    raise RomanError('Wrong form')
 
-            if REVERSED_ROMAN_NUMBER[stack[-1]] > REVERSED_ROMAN_NUMBER[numStr[idx]]:
+            if stack_last > current_idx:
                 temp = romanStack(stack)
-                result_arr.append(str(temp))
                 result_dec += temp
-            stack.insert(0, numStr[idx])
-        else:
-            result_dec += romanStack(stack)
-        
-        for x in result_arr:
-            if len(x) > 1:
-                raise Exception
-    except:
-        result_dec = 'Error!'
-    return result_dec
+            stack.insert(0, current_idx)
 
-def romanStack(stack):
+        if stack:
+            result_dec += romanStack(stack)
+    except RomanError:
+        return 'Error!'
+    except TypeError:
+        return 'Error!'
+    return str(result_dec)
+
+def romanStack(stack: list):
     '''
         This method reduces stack
         When the method returns -1
@@ -118,11 +127,8 @@ def romanStack(stack):
     '''
     result_stack = 0
     while len(stack) > 1:
-        try:
-            num_i = REVERSED_ROMAN_NUMBER[stack.pop()]
-            num_j = REVERSED_ROMAN_NUMBER[stack.pop()]
-        except KeyError:
-            return -1
+        num_i = stack.pop()
+        num_j = stack.pop()
         if num_i != num_j:
             # if num_i is smaller than num_j
             result_stack += num_j - num_i
@@ -131,10 +137,10 @@ def romanStack(stack):
             result_stack += num_i + num_j
     if stack:
         # add last number
-        result_stack += REVERSED_ROMAN_NUMBER[stack.pop()]
+        result_stack += stack.pop()
     return result_stack
 
-def isRoman(numStr):
+def isRoman(numStr: str) -> bool:
     '''
         This method returns "True" if given number is the Roman numeral.
         Otherwise returns "False"
