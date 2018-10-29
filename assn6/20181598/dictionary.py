@@ -1,0 +1,19 @@
+from calcFunctions import *
+
+constantThings = [
+    ('pi', '3.141592'),
+    ('빛의 이동 속도 (m/s)', '3E+8'),
+    ('소리의 이동 속도 (m/s)', '340'),
+    ('태양과의 평균 거리 (km)', '1.5E+8')
+]
+
+functionThings = [
+    ('factorial (!)', factorial),
+    ('-> binary', decToBin),
+    ('binary -> dec', binToDec),
+    ('-> roman', decToRoman),
+    ('roman -> dec', romanToDec)
+]
+
+constantList = [x[0] for x in constantThings]
+functionList = [x[0] for x in functionThings]
